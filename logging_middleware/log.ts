@@ -1,7 +1,7 @@
 import { type Log } from "./types";
 
 export default function Log(log: Log) {
-    return fetch(`${process.env.TEST_SERVER_BASE}/logs`, {
+    fetch(`${process.env.TEST_SERVER_BASE}/logs`, {
         method: "POST",
         headers: {
             Authorization: `Bearer ${process.env.TOKEN}`,
