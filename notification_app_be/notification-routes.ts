@@ -44,5 +44,10 @@ app.get("/notifications", async (req, res) => {
 });
 
 app.listen(8000, () => {
-    console.log("server running");
+    Log({
+        stack: "backend",
+        package: "controller",
+        level: "info",
+        message: "server running",
+    });
 });

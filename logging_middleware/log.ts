@@ -25,12 +25,3 @@ export default function Log(log: Log) {
             };
         });
 }
-
-//debugging
-// const log: Log = {
-//     stack: "backend",
-//     package: "controller",
-//     level: "debug",
-//     message: "testing",
-// };
-// console.log(await Log(log));

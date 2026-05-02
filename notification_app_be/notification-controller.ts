@@ -17,70 +17,56 @@ export class NotificationManager {
     async getNotifications(
         query: NotificationQuery = {},
     ): Promise<Notifications[]> {
-        const now = Date.now();
-        const lastFetchedTime = this.notificationCache.last_fetched
-            ? new Date(this.notificationCache.last_fetched).getTime()
-            : 0;
-
         Log({
             stack: "backend",
             package: "controller",
             level: "info",
-            message: "Checking the cache.",
+            message: "Fetching notifications (cache disabled).",
         });
-        // 1 min cache to reach almost real-time
-        const isExpired = now - lastFetchedTime > 60000;
 
-        if (this.notificationCache.notifications.length === 0 || isExpired) {
-            Log({
-                stack: "backend",
-                package: "controller",
-                level: "info",
-                message: "Cache not found. Fetching the notifications.",
-            });
-            console.log("here");
-            const params = new URLSearchParams();
-            const normalize = (
-                value: string | string[] | number | undefined,
-            ): string | undefined =>
-                value === undefined
-                    ? undefined
-                    : Array.isArray(value)
-                      ? value[0]
-                      : String(value);
+        const params = new URLSearchParams();
+        const normalize = (
+            value: string | string[] | number | undefined,
+        ): string | undefined =>
+            value === undefined
+                ? undefined
+                : Array.isArray(value)
+                  ? value[0]
+                  : String(value);
 
-            const limit = normalize(query.limit);
-            const page = normalize(query.page);
-            const notificationType = normalize(query.notification_type);
+        const limit = normalize(query.limit);
+        const page = normalize(query.page);
+        const notificationType = normalize(query.notification_type);
+        const normalizedType =
+            notificationType === "Events" ? "Event" : notificationType;
 
-            if (limit !== undefined) {
-                params.set("limit", limit);
-            }
-            if (page !== undefined) {
-                params.set("page", page);
-            }
-            if (notificationType !== undefined) {
-                params.set("notification_type", notificationType);
-            }
-            const path = params.toString()
-                ? `/notifications?${params.toString()}`
-                : "/notifications";
-            const data = await ApiCall(path);
-            console.log(data);
-            if (Array.isArray(data)) {
-                this.notificationCache = {
-                    notifications: data as Notifications[],
-                    last_fetched: new Date().toISOString(),
-                };
-            }
+        if (limit !== undefined) {
+            params.set("limit", limit);
         }
-
+        if (page !== undefined) {
+            params.set("page", page);
+        }
+        if (normalizedType !== undefined) {
+            params.set("notification_type", normalizedType);
+        }
+        const path = params.toString()
+            ? `/notifications?${params.toString()}`
+            : "/notifications";
+        const data = await ApiCall(path);
         Log({
             stack: "backend",
             package: "controller",
-            level: "info",
-            message: "Cache found. Returning result from the cache",
+            level: "debug",
+            message: `Notifications response received.`,
         });
-        return this.notificationCache.notifications;
+        const notifications = Array.isArray(data)
+            ? data
+            : Array.isArray(
+                    (data as { notifications?: unknown })?.notifications,
+                )
+              ? (data as { notifications: Notifications[] }).notifications
+              : [];
+
+        return notifications;
     }
 }

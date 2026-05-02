@@ -1,0 +1,19 @@
+* {
+    box-sizing: border-box;
+}
+
+:root {
+    font-family: "Inter", "Roboto", "Helvetica", "Arial", sans-serif;
+    color-scheme: light;
+    background-color: #f5f6f8;
+    color: #1f2937;
+}
+
+body {
+    margin: 0;
+    background-color: #f5f6f8;
+}
+
+#root {
+    min-height: 100vh;
+}
